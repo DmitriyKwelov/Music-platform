@@ -1,10 +1,14 @@
 import React, {useState} from 'react';
 import MainLayout from "@/layouts/MainLayout";
 import StepWrapper from "@/components/StepWrapper";
-import {Button, Grid} from "@mui/material";
+import {Button, Grid, TextField} from "@mui/material";
+import FileUpload from "../../components/FileIUpload";
 
 const Create = () => {
     const [activeStep, setActiveStep] = useState(0)
+    const [picture, setPicture] = useState(null);
+    const [audio, setAudio] = useState(null);
+
     const next = () => {
         if(activeStep !== 2) {
             setActiveStep(prev => prev + 1)
@@ -17,13 +21,32 @@ const Create = () => {
         <MainLayout>
             <StepWrapper activeStep={activeStep}>
                 {activeStep === 0 &&
-                    <h1>STEP 1</h1>
+                    <Grid container direction={"column"} style={{padding: 20}}>
+                        <TextField
+                            style={{marginTop: 10}}
+                            label={"Название трека"}
+                        />
+                        <TextField
+                            style={{marginTop: 10}}
+                            label={"Имя исполнителя"}
+                        />
+                        <TextField
+                            style={{marginTop: 10}}
+                            label={"Слова к треку"}
+                            multiline
+                            rows={3}
+                        />
+                    </Grid>
                 }
                 {activeStep === 1 &&
-                    <h1>STEP 2</h1>
+                    <FileUpload setFile={setPicture} accept="image/*">
+                        <Button>Загрузите обложку</Button>
+                    </FileUpload>
                 }
                 {activeStep === 2 &&
-                    <h1>STEP 3</h1>
+                    <FileUpload setFile={setAudio} accept="audio/*">
+                        <Button>Загрузите аудио</Button>
+                    </FileUpload>
                 }
             </StepWrapper>
             <Grid container justifyContent='space-between'>
