@@ -26,8 +26,11 @@ let TrackService = class TrackService {
         this.fileService = fileService;
     }
     async create(dto, picture, audio) {
+        console.log(audio);
+        console.log(1);
         const audioPath = this.fileService.createFile(file_service_1.FileType.AUDIO, audio[0]);
         const picturePath = this.fileService.createFile(file_service_1.FileType.IMAGE, picture[0]);
+        console.log(2);
         const track = await this.trackModel.create(Object.assign(Object.assign({}, dto), { listens: 0, audio: audioPath, picture: picturePath }));
         return track;
     }

@@ -10,6 +10,7 @@ const FileIUpload: FC<FileUploadProp> = ({setFile, accept, children}) => {
     const ref = useRef<HTMLInputElement>()
 
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        console.log('111')
         // @ts-ignore
         setFile(e.target.files[0])
     }
@@ -22,6 +23,7 @@ const FileIUpload: FC<FileUploadProp> = ({setFile, accept, children}) => {
                 style={{display: "none"}}
                 // @ts-ignore
                 ref={ref}
+                onChange={onChange}
             />
             {children}
         </div>

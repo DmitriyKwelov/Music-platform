@@ -1,22 +1,43 @@
-import React from 'react';
+import React, {useState} from 'react';
 import MainLayout from "@/layouts/MainLayout";
-import {Button, Card, Grid} from "@mui/material";
+import {Button, Card, Grid, TextField} from "@mui/material";
 import Box from "@mui/material/Box";
 import {useRouter} from "next/router";
 import {ITrack} from "@/types/track";
 import TrackList from "@/components/TrackList";
+import {useTypeSelector} from "@/hooks/useTypeSelector";
+import {NextThunkDispatch, wrapper} from "@/store";
+import {fetchTracks, searchTrack} from "@/store/action-creators/track";
+import {useDispatch} from "react-redux";
 
 const Index = () => {
     const router = useRouter();
+    const {tracks, error} = useTypeSelector(state => state.track)
+    const [query, setQuery] = useState('');
+    const dispatch = useDispatch() as NextThunkDispatch;
+    const [timer, setTimer] = useState(null)
 
-    const tracks: ITrack[] = [
-        {_id: '1', name: "Трек 1", artist: "Исполнитель 1", text: 'Какой-то текст', listens: 5, audio: 'http://localhost:5000/audio/4489b151-4594-4e64-a9f9-ee2636a81c85.mp3', picture: 'http://localhost:5000/image/2d19ab76-2573-4796-b190-1f2195c917f1.jpg', comments: []},
-        {_id: '2', name: "Трек 2", artist: "Исполнитель 2", text: 'Какой-то текст', listens: 5, audio: 'http://localhost:5000/audio/4489b151-4594-4e64-a9f9-ee2636a81c85.mp3', picture: 'http://localhost:5000/image/2d19ab76-2573-4796-b190-1f2195c917f1.jpg', comments: []},
-        {_id: '3', name: "Трек 3", artist: "Исполнитель 3", text: 'Какой-то текст', listens: 5, audio: 'http://localhost:5000/audio/4489b151-4594-4e64-a9f9-ee2636a81c85.mp3', picture: 'http://localhost:5000/image/2d19ab76-2573-4796-b190-1f2195c917f1.jpg', comments: []},
-    ]
+    const search = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        setQuery(e.target.value)
+        if(timer) {
+            clearTimeout(timer)
+        }
+        setTimer(
+            // @ts-ignore
+            setTimeout(async () => {
+                await dispatch( await searchTrack(e.target.value))
+            }, 500)
+        )
+    }
+
+    if(error){
+        return <MainLayout>
+            <h1>{error}</h1>
+        </MainLayout>
+    }
 
     return (
-        <MainLayout>
+        <MainLayout title={"Список треков - музыкальная платформа"}>
             <Grid container justifyContent='center'>
                 <Card style={{width: 900}}>
                     <Box p={3}>
@@ -25,6 +46,11 @@ const Index = () => {
                             <Button onClick={() => router.push('/tracks/create')}>Загрузить</Button>
                         </Grid>
                     </Box>
+                    <TextField
+                        fullWidth
+                        value={query}
+                        onChange={search}
+                    />
                     <TrackList tracks={tracks}/>
                 </Card>
             </Grid>
@@ -33,3 +59,9 @@ const Index = () => {
 };
 
 export default Index;
+
+//@ts-ignore
+export const getServerSideProps = wrapper.getServerSideProps(store => async ({req, res, ...etc}) => {
+    const dispatch = store.dispatch as NextThunkDispatch
+    await dispatch(await fetchTracks())
+})
